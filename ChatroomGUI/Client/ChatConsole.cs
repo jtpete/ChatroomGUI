@@ -20,41 +20,45 @@ namespace Client
         TcpClient clientSocket;
         NetworkStream stream;
         private string chatMessage;
+        Thread receiveThread;
+        bool clientActive;
 
         public ChatConsole()
         {
             InitializeComponent();
+            clientActive = true;
 
         }
         public void Receive()
         {
-            char[] charsToTrim = { '\0' };
-            while (true)
+            while (clientActive)
             {
                 try
                 {
                     byte[] receivedMessage = new byte[256];
                     stream.Read(receivedMessage, 0, receivedMessage.Length);
                     string message = Encoding.ASCII.GetString(receivedMessage);
-                    ChatMessages.Invoke((Action)(() =>
-                    {
-                        if (MyMessage(message.Trim(charsToTrim)))
-                        {
-                            ChatMessages.SelectionColor = Color.Red;
-                            ChatMessages.AppendText($"\n{message}\r");
-                        }
-                        else
-                        {
-                            ChatMessages.SelectionColor = Color.Black;
-                            ChatMessages.AppendText($"\n{message}\r");
-                        }
-                    }));
-
+                    ChatMessages.Invoke((Action)(() => {PrintMessageToScreen(message);}));
                 }
                 catch (Exception e)
                 {
                     ChatMessages.Text = "Error Receiving Servers Message " + e;
                 }
+            }
+            clientSocket.Close();
+        }
+        private void PrintMessageToScreen(string message)
+        {
+            char[] charsToTrim = { '\0' };
+            if (clientActive && MyMessage(message.Trim(charsToTrim)))
+            {
+                ChatMessages.SelectionColor = Color.Red;
+                ChatMessages.AppendText($"\n{message}\r");
+            }
+            else if (clientActive)
+            {
+                ChatMessages.SelectionColor = Color.Black;
+                ChatMessages.AppendText($"\n{message}\r");
             }
         }
         private bool MyMessage(string text)
@@ -71,10 +75,15 @@ namespace Client
             StartReceiveThread();
             chatName = ChatName.Text;
             SendChatName();
+            PrepareChatWindow();
+        }
+        private void PrepareChatWindow()
+        {
             this.AcceptButton = Submit;
             ChatName.ReadOnly = true;
             ChatMessages.ReadOnly = true;
             Connect.Enabled = false;
+            Leave.Enabled = true;
         }
         public void ConnectToServer()
         {
@@ -84,7 +93,7 @@ namespace Client
         }
         public void StartReceiveThread()
         {
-            Thread receiveThread = new Thread(new ThreadStart(Receive));
+            receiveThread = new Thread(new ThreadStart(Receive));
             receiveThread.Start();
         }
         public void SendChatName()
@@ -113,6 +122,36 @@ namespace Client
             {
                 ChatMessages.Text = "Error trying to send to server " + e;
             }
+        }
+
+        private void Leave_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Do you really want to Leave?", "Dialog Title", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                SendLeaveMessageToServer();
+                clientActive = false;
+                Application.Exit();
+            }
+        }
+        private void SendLeaveMessageToServer()
+        {
+            chatMessage = "##LEAVE##";
+            Send();
+        }
+        private void ChatConsole_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                SendLeaveMessageToServer();
+                clientActive = false;
+                Application.Exit();
+            }
+        }
+
+        private void ChatConsole_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

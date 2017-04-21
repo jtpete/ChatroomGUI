@@ -14,12 +14,15 @@ namespace Server
         public string UserId;
         public Nullable<DateTime> startChat;
         public Nullable<DateTime> endChat;
+        bool clientDone;
+
         public Client(NetworkStream Stream, TcpClient Client)
         {
             stream = Stream;
             client = Client;
             ReceiveNewUserId();
             startChat = DateTime.Now;
+            clientDone = false;
         }
         public async Task Send(string Message)
         {
@@ -38,7 +41,6 @@ namespace Server
         }
         public void Recieve()
         {
-            bool clientDone = false;
             while (!clientDone)
             {
                 char[] charsToTrim = { '\0' };
@@ -47,8 +49,7 @@ namespace Server
                     byte[] recievedMessage = new byte[256];
                     stream.Read(recievedMessage, 0, recievedMessage.Length);
                     string recievedMessageString = Encoding.ASCII.GetString(recievedMessage);
-                    Message message = new Message(this, recievedMessageString.Trim(charsToTrim));
-                    Server.messageQueue.Enqueue(message);
+                    ProcessMessage(recievedMessageString.Trim(charsToTrim));
                 }
                 catch (Exception e)
                 {
@@ -59,6 +60,34 @@ namespace Server
                     clientDone = true;
                 }
             }
+        }
+        private void ProcessMessage(string message)
+        {
+            if (ClientLeft(message))
+            {
+                RemoveClient();
+                Message aMessage = new Message(this, NotifyStatus());
+                Server.messageQueue.Enqueue(aMessage);
+                client.Close();
+                clientDone = true;
+            }
+            else if(ClientPrivateMessage())
+            {
+                // Expand for private messages
+            }
+            else
+            {
+                Message aMessage = new Message(this, message);
+                Server.messageQueue.Enqueue(aMessage);
+            }
+        }
+        private bool ClientLeft(string message)
+        {
+            return message.Contains("##LEAVE##");
+        }
+        private bool ClientPrivateMessage()
+        {
+            return false;
         }
         public void ReceiveNewUserId()
         {
