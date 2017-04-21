@@ -71,10 +71,6 @@ namespace Server
                 client.Close();
                 clientDone = true;
             }
-            else if(ClientPrivateMessage())
-            {
-                // Expand for private messages
-            }
             else
             {
                 Message aMessage = new Message(this, message);
@@ -84,10 +80,6 @@ namespace Server
         private bool ClientLeft(string message)
         {
             return message.Contains("##LEAVE##");
-        }
-        private bool ClientPrivateMessage()
-        {
-            return false;
         }
         public void ReceiveNewUserId()
         {

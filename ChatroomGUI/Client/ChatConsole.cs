@@ -38,7 +38,7 @@ namespace Client
                     byte[] receivedMessage = new byte[256];
                     stream.Read(receivedMessage, 0, receivedMessage.Length);
                     string message = Encoding.ASCII.GetString(receivedMessage);
-                    ChatMessages.Invoke((Action)(() => {PrintMessageToScreen(message);}));
+                    ChatMessages.Invoke((Action)(() => { PrintMessageToScreen(message); }));
                 }
                 catch (Exception e)
                 {
@@ -50,7 +50,13 @@ namespace Client
         private void PrintMessageToScreen(string message)
         {
             char[] charsToTrim = { '\0' };
-            if (clientActive && MyMessage(message.Trim(charsToTrim)))
+            message.Trim(charsToTrim);
+            if (clientActive && message.Contains("##PM##"))
+            {
+                ChatMessages.SelectionColor = Color.Blue;
+                ChatMessages.AppendText($"\n{message.Substring(6)}\r");
+            }
+            else if (clientActive && MyMessage(message))
             {
                 ChatMessages.SelectionColor = Color.Red;
                 ChatMessages.AppendText($"\n{message}\r");
@@ -105,10 +111,23 @@ namespace Client
 
         private void Submit_Click(object sender, EventArgs e)
         {
-            chatMessage = ClientMessages.Text;
-            ClientMessages.Text = "";
+            if (PrivateMessageToggle.Checked)
+            {
+                BuildPrivateMessage();
+                ClientMessages.Text = "";
+            }
+            else
+            {
+                chatMessage = ClientMessages.Text;
+                ClientMessages.Text = "";
+            }
             Send();
 
+
+        }
+        private void BuildPrivateMessage()
+        {
+            chatMessage = $"##PM## TO:{PrivateMessageChatName.Text}MESSAGE:{ClientMessages.Text}";
         }
         public void Send()
         {
@@ -149,9 +168,12 @@ namespace Client
             }
         }
 
-        private void ChatConsole_Load(object sender, EventArgs e)
+        private void PrivateMessageToggle_CheckedChanged(object sender, EventArgs e)
         {
-
+            if (PrivateMessageToggle.Checked)
+                PrivateMessageChatName.Enabled = true;
+            else
+                PrivateMessageChatName.Enabled = false;
         }
     }
 }

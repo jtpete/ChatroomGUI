@@ -34,6 +34,9 @@
             this.Submit = new System.Windows.Forms.Button();
             this.ChatMessages = new System.Windows.Forms.RichTextBox();
             this.Leave = new System.Windows.Forms.Button();
+            this.PrivateMessageToggle = new System.Windows.Forms.CheckBox();
+            this.PrivateMessageChatName = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // ChatName
@@ -55,14 +58,14 @@
             // 
             // ClientMessages
             // 
-            this.ClientMessages.Location = new System.Drawing.Point(12, 457);
+            this.ClientMessages.Location = new System.Drawing.Point(12, 384);
             this.ClientMessages.Name = "ClientMessages";
             this.ClientMessages.Size = new System.Drawing.Size(490, 22);
             this.ClientMessages.TabIndex = 3;
             // 
             // Submit
             // 
-            this.Submit.Location = new System.Drawing.Point(427, 485);
+            this.Submit.Location = new System.Drawing.Point(427, 421);
             this.Submit.Name = "Submit";
             this.Submit.Size = new System.Drawing.Size(75, 23);
             this.Submit.TabIndex = 4;
@@ -74,7 +77,7 @@
             // 
             this.ChatMessages.Location = new System.Drawing.Point(12, 55);
             this.ChatMessages.Name = "ChatMessages";
-            this.ChatMessages.Size = new System.Drawing.Size(490, 374);
+            this.ChatMessages.Size = new System.Drawing.Size(490, 309);
             this.ChatMessages.TabIndex = 5;
             this.ChatMessages.Text = "";
             // 
@@ -90,11 +93,42 @@
             this.Leave.UseVisualStyleBackColor = true;
             this.Leave.Click += new System.EventHandler(this.Leave_Click);
             // 
+            // PrivateMessageToggle
+            // 
+            this.PrivateMessageToggle.AutoSize = true;
+            this.PrivateMessageToggle.Location = new System.Drawing.Point(12, 426);
+            this.PrivateMessageToggle.Name = "PrivateMessageToggle";
+            this.PrivateMessageToggle.Size = new System.Drawing.Size(135, 21);
+            this.PrivateMessageToggle.TabIndex = 7;
+            this.PrivateMessageToggle.Text = "Private Message";
+            this.PrivateMessageToggle.UseVisualStyleBackColor = true;
+            this.PrivateMessageToggle.CheckedChanged += new System.EventHandler(this.PrivateMessageToggle_CheckedChanged);
+            // 
+            // PrivateMessageChatName
+            // 
+            this.PrivateMessageChatName.Location = new System.Drawing.Point(12, 453);
+            this.PrivateMessageChatName.Name = "PrivateMessageChatName";
+            this.PrivateMessageChatName.Size = new System.Drawing.Size(246, 22);
+            this.PrivateMessageChatName.Enabled = false;
+            this.PrivateMessageChatName.TabIndex = 8;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 478);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(200, 17);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "Chat name to private message";
+            // 
             // ChatConsole
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(536, 517);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.PrivateMessageChatName);
+            this.Controls.Add(this.PrivateMessageToggle);
             this.Controls.Add(this.Leave);
             this.Controls.Add(this.ChatMessages);
             this.Controls.Add(this.Submit);
@@ -103,8 +137,7 @@
             this.Controls.Add(this.ChatName);
             this.Name = "ChatConsole";
             this.Text = "Chatroom";
-            this.Load += new System.EventHandler(this.ChatConsole_Load);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(ChatConsole_FormClosed);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ChatConsole_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -118,6 +151,9 @@
         private System.Windows.Forms.Button Submit;
         private System.Windows.Forms.RichTextBox ChatMessages;
         private System.Windows.Forms.Button Leave;
+        private System.Windows.Forms.CheckBox PrivateMessageToggle;
+        private System.Windows.Forms.TextBox PrivateMessageChatName;
+        private System.Windows.Forms.Label label1;
     }
 }
 

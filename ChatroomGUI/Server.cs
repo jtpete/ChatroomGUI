@@ -62,7 +62,7 @@ namespace Server
                 }
                 catch (Exception e)
                 {
-                        Console.WriteLine("Error accepting client on server " + e);
+                    Console.WriteLine("Error accepting client on server " + e);
                 }
             }
         }
@@ -98,19 +98,36 @@ namespace Server
             {
                 if (messageQueue.TryDequeue(out message))
                 {
-                    Console.WriteLine(message.Display());
-         //           saveThese.Save(message);
-                    foreach(string person in allClients.Keys)
+                    //saveThese.Save(message);
+                    if (message.privateMessage)
                     {
-                        if (allClients[person].endChat.HasValue)
-                            removeClients.Add(client.UserId, client);
-                        else
-                            allClients[person].Send(message.Display());
+                        Console.WriteLine(message.DisplayPrivateMessage());
+                        SendPrivateMessage(message);
+                    }
+                    else
+                    {
+                        Console.WriteLine(message.Display());
+                        foreach (string person in allClients.Keys)
+                        {
+                            if (allClients[person].endChat.HasValue)
+                                removeClients.Add(client.UserId, client);
+                            else
+                                allClients[person].Send(message.Display());
+                        }
                     }
                     RemoveClientsAndNotify();
                 }
-                
             }
+        }
+        private void SendPrivateMessage(Message message)
+        {
+            try
+            {
+                allClients[message.privateMessageReceiver].Send(message.DisplayPrivateMessage());
+                allClients[message.UserId].Send(message.DisplayPrivateMessage());
+            }
+            catch (Exception e)
+            { }
         }
         private void RemoveClientsAndNotify()
         {
